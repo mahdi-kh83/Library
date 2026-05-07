@@ -222,7 +222,8 @@ function Search({ query, setQuery }) {
 function Numresults({ movies }) {
   return (
     <p className="num-results">
-      تعداد : <strong>{movies.length}</strong>
+      {/* تعداد می تواند اضافه شود */}
+      <strong>{movies.length}</strong>
     </p>
   );
 }
