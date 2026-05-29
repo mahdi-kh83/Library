@@ -1,77 +1,110 @@
 import { useState, useRef, useEffect } from "react";
 import StarRating from "./StarRating";
-import { useBooks } from "./useBooks"; // هوک اصلاح شده
+import { useBooks } from "./useBooks";
 import { useLocalStorageState } from "./useLocalStorageState";
 import { useKey } from "./useKey";
 
-// آرایه data حذف شد چون همه چیز از API می‌آید
+/* =========================
+   Styles
+========================= */
 
 const style = {
   fontSize: "12px",
   color: "gray",
 };
 
+/* =========================
+   Helpers
+========================= */
+
 const average = (arr) =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  arr.length === 0 ? 0 : arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
+
+// تبدیل تاریخ میلادی به شمسی فارسی
+function formatPersianDate(dateString) {
+  return new Date(dateString).toLocaleDateString("fa-IR-u-ca-persian", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/* =========================
+   App
+========================= */
 
 export default function App() {
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedBookId, setSelectedBookId] = useState(null);
+
   const [query, setQuery] = useState("");
 
-  // دریافت کتاب‌ها از هوک
+  // دریافت کتاب‌ها
   const { books, isLoading, error } = useBooks(query);
 
-  const [watched, setWatched] = useLocalStorageState([], "watched");
+  // کتاب‌های امانت گرفته شده
+  const [borrowedBooks, setBorrowedBooks] = useLocalStorageState(
+    [],
+    "borrowedBooks",
+  );
 
-  function handelSelectMovie(id) {
-    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  /* =========================
+     Handlers
+  ========================= */
+
+  function handleSelectBook(id) {
+    setSelectedBookId((currentId) => (currentId === id ? null : id));
   }
 
-  function handelCloseMovie() {
-    setSelectedId(null);
+  function handleCloseBook() {
+    setSelectedBookId(null);
   }
 
-  function handelAddWatched(movie) {
-    // افزودن کتاب به لیست تماشای شده
-    setWatched((watched) => [...watched, movie]);
+  function handleAddBorrowed(book) {
+    setBorrowedBooks((prev) => [...prev, book]);
   }
 
-  function handelDeleteWatched(id) {
-    setWatched((watched) => watched.filter((movie) => movie.id !== id));
+  function handleDeleteBorrowed(id) {
+    setBorrowedBooks((prev) => prev.filter((book) => book.id !== id));
   }
+
+  /* =========================
+     Render
+  ========================= */
 
   return (
     <>
       <NavBar>
         <Search query={query} setQuery={setQuery} />
-        {/* نمایش تعداد کتاب‌های فیلتر شده */}
-        <Numresults movies={books} />
+
+        <NumResults books={books} />
       </NavBar>
 
       <Main>
         <Box>
           {isLoading && <Loader />}
+
           {!isLoading && !error && (
-            // مهم: اینجا باید books را پاس بدهیم
-            <MovieList movies={books} onSelectMovie={handelSelectMovie} />
+            <BookList books={books} onSelectBook={handleSelectBook} />
           )}
+
           {error && <ErrorMessage message={error} />}
         </Box>
 
         <Box>
-          {selectedId ? (
-            <MovieDetails
-              selectedId={selectedId}
-              onCloseMovie={handelCloseMovie}
-              onAddWatched={handelAddWatched}
-              watched={watched}
+          {selectedBookId ? (
+            <BookDetails
+              selectedBookId={selectedBookId}
+              onCloseBook={handleCloseBook}
+              onAddBorrowed={handleAddBorrowed}
+              borrowedBooks={borrowedBooks}
             />
           ) : (
             <>
-              <WatchedSummery watched={watched} />
-              <WatchedMoviesList
-                watched={watched}
-                onDeleteWatched={handelDeleteWatched}
+              <BorrowedSummary borrowedBooks={borrowedBooks} />
+
+              <BorrowedBooksList
+                borrowedBooks={borrowedBooks}
+                onDeleteBorrowed={handleDeleteBorrowed}
               />
             </>
           )}
@@ -81,11 +114,17 @@ export default function App() {
   );
 }
 
-// --- کامپوننت‌های کمکی ---
+/* =========================
+   Loader
+========================= */
 
 function Loader() {
   return <p className="loader">Loading...</p>;
 }
+
+/* =========================
+   Error
+========================= */
 
 function ErrorMessage({ message }) {
   return (
@@ -94,6 +133,10 @@ function ErrorMessage({ message }) {
     </p>
   );
 }
+
+/* =========================
+   Navbar
+========================= */
 
 function NavBar({ children }) {
   return (
@@ -107,17 +150,25 @@ function NavBar({ children }) {
 function Logo() {
   return (
     <div className="logo">
-      <span role="img">📕</span>
+      <span role="img">📚</span>
+
       <h1>کتابخانه</h1>
     </div>
   );
 }
 
+/* =========================
+   Search
+========================= */
+
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
+
   useKey("Enter", function () {
     if (document.activeElement === inputEl.current) return;
+
     inputEl.current.focus();
+
     setQuery("");
   });
 
@@ -125,7 +176,7 @@ function Search({ query, setQuery }) {
     <input
       className="search"
       type="text"
-      placeholder="جستجو کتاب ..."
+      placeholder="جستجوی کتاب..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
       ref={inputEl}
@@ -133,170 +184,344 @@ function Search({ query, setQuery }) {
   );
 }
 
-function Numresults({ movies }) {
+/* =========================
+   Results
+========================= */
+
+function NumResults({ books }) {
   return (
     <p className="num-results">
-      <strong>{movies.length}</strong>
+      <strong>{books.length}</strong>
+      <span> کتاب پیدا شد</span>
     </p>
   );
 }
+
+/* =========================
+   Main
+========================= */
 
 function Main({ children }) {
   return <main className="main">{children}</main>;
 }
 
+/* =========================
+   Box
+========================= */
+
 function Box({ children }) {
   const [isOpen, setIsOpen] = useState(true);
+
   return (
     <div className="box">
       <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
         {isOpen ? "–" : "+"}
       </button>
+
       {isOpen && children}
     </div>
   );
 }
 
-function MovieList({ movies, onSelectMovie }) {
+/* =========================
+   Book List
+========================= */
+
+function BookList({ books, onSelectBook }) {
   return (
-    <ul className="list list-movies">
-      {movies?.map((movie) => (
-        <Movie movie={movie} key={movie.id} onSelectMovie={onSelectMovie} />
+    <ul className="list list-books">
+      {books?.map((book) => (
+        <Book key={book.id} book={book} onSelectBook={onSelectBook} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie, onSelectMovie }) {
+/* =========================
+   Book Item
+========================= */
+
+function Book({ book, onSelectBook }) {
   return (
-    <li onClick={() => onSelectMovie(movie.id)}>
-      <img src={movie.picture} alt={`${movie.title} poster`} />
-      <h3>{movie.title}</h3>
+    <li onClick={() => onSelectBook(book.id)}>
+      <img src={book.picture} alt={`${book.title} cover`} />
+
+      <h3>{book.title}</h3>
+
       <div>
         <p>
-          <span> 🖊</span>
-          <span style={style}>{movie.author}</span>
+          <span>✍️</span>
+
+          <span style={style}>{book.author}</span>
         </p>
       </div>
     </li>
   );
 }
 
-function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
-  // پیدا کردن دیتای کامل کتاب از لیست watched یا یک لیست سراسری
-  // چون در این ساختار ساده، دیتای کامل جزئیات (مثل پلات) در JSON Server نیست،
-  // ما فرض می‌کنیم که selectedId یکی از کتاب‌های در لیست books است.
-  // برای سادگی، ما دیتا را از لیست watched پیدا می‌کنیم اگر آنجا باشد، یا یک دیتای پیش‌فرض برمی‌گردانیم.
+/* =========================
+   Book Details
+========================= */
 
-  const movie = watched.find((m) => m.id === selectedId) || {
-    id: selectedId,
-    title: "عنوان کتاب",
-    author: "نویسنده",
-    picture: "",
-  };
+function BookDetails({
+  selectedBookId,
+  onCloseBook,
+  onAddBorrowed,
+  borrowedBooks,
+}) {
+  const [book, setBook] = useState({});
 
-  const isWatched = watched.map((m) => m.id).includes(selectedId);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [userRating, setUserRating] = useState("");
-  const countRef = useRef(0);
+  // تعداد روز امانت
+  const [userRating, setUserRating] = useState(0);
 
-  useEffect(() => {
-    if (userRating) countRef.current++;
-  }, [userRating]);
+  const isBorrowed = borrowedBooks
+    .map((book) => book.id)
+    .includes(selectedBookId);
 
-  function handelAdd() {
-    const newWatchedMovie = {
-      ...movie,
+  const { title, author, picture, precis } = book;
+
+  /* =========================
+     Add Book
+  ========================= */
+
+  function handleAdd() {
+    const borrowedDate = new Date();
+
+    // محاسبه تاریخ بازگشت
+    const returnDate = new Date(
+      borrowedDate.getTime() + Number(userRating) * 24 * 60 * 60 * 1000,
+    );
+
+    const newBorrowedBook = {
+      id: selectedBookId,
+
+      title,
+      author,
+      picture,
+      precis,
+
+      // تعداد روز امانت
       userRating: Number(userRating),
+
+      // تاریخ امانت
+      borrowedAt: borrowedDate.toISOString(),
+
+      // تاریخ بازگشت
+      returnDate: returnDate.toISOString(),
     };
-    onAddWatched(newWatchedMovie);
-    onCloseMovie();
+
+    onAddBorrowed(newBorrowedBook);
+
+    onCloseBook();
   }
+
+  /* =========================
+     Fetch Book
+  ========================= */
+
+  useEffect(
+    function () {
+      async function getBookDetails() {
+        try {
+          setIsLoading(true);
+
+          const res = await fetch(
+            `http://localhost:9000/books/${selectedBookId}`,
+          );
+
+          if (!res.ok) throw new Error("خطا در دریافت اطلاعات کتاب");
+
+          const data = await res.json();
+
+          setBook(data);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      getBookDetails();
+    },
+    [selectedBookId],
+  );
+
+  /* =========================
+     Page Title
+  ========================= */
+
+  useEffect(
+    function () {
+      if (!title) return;
+
+      document.title = `کتاب | ${title}`;
+
+      return function () {
+        document.title = "کتابخانه";
+      };
+    },
+    [title],
+  );
+
+  /* =========================
+     Escape Key
+  ========================= */
+
+  useKey("Escape", onCloseBook);
+
+  /* =========================
+     Render
+  ========================= */
 
   return (
     <div className="details">
-      <header>
-        <button className="btn-back" onClick={onCloseMovie}>
-          &larr;
-        </button>
-        <img src={movie.picture} alt={`Poster of ${movie.title}`} />
-        <div className="details-overview">
-          <h2>{movie.title}</h2>
-          <p>{movie.author}</p>
-        </div>
-      </header>
-      <section>
-        <div className="rating">
-          {!isWatched ? (
-            <>
-              <StarRating
-                maxRating={10}
-                size={24}
-                onSetRating={setUserRating}
-              />
-              {userRating > 0 && (
-                <button className="btn-add" onClick={handelAdd}>
-                  + افزودن به لیست
-                </button>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseBook}>
+              &larr;
+            </button>
+
+            <img src={picture} alt={`Cover of ${title}`} />
+
+            <div className="details-overview">
+              <h2>{title}</h2>
+
+              <p>{author}</p>
+            </div>
+          </header>
+
+          <section>
+            <div className="rating">
+              {!isBorrowed ? (
+                <>
+                  <p>مدت زمان امانت (برحسب روز)</p>
+
+                  <StarRating
+                    maxRating={10}
+                    size={24}
+                    onSetRating={setUserRating}
+                  />
+
+                  {userRating > 0 && (
+                    <button className="btn-add" onClick={handleAdd}>
+                      امانت گرفتن +
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p>این کتاب قبلاً امانت گرفته شده است</p>
               )}
-            </>
-          ) : (
-            <p>این کتاب در لیست شماست</p>
-          )}
-        </div>
-      </section>
+            </div>
+
+            <div>
+              <h2>خلاصه کتاب:</h2>
+
+              <p>
+                <em>{precis}</em>
+              </p>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
 
-function WatchedSummery({ watched }) {
-  const avgUserRating =
-    watched.length > 0 ? average(watched.map((movie) => movie.userRating)) : 0;
+/* =========================
+   Borrowed Summary
+========================= */
+
+function BorrowedSummary({ borrowedBooks }) {
+  const avgBorrowDays =
+    borrowedBooks.length > 0
+      ? average(borrowedBooks.map((book) => Number(book.userRating)))
+      : 0;
 
   return (
     <div className="summary">
-      <h2>کتاب های امانت گرفته شده</h2>
+      <h2>کتاب‌های امانت گرفته شده</h2>
+
       <div>
         <p>
           <span>#️⃣</span>
-          <span>{watched.length} کتاب</span>
+
+          <span>{borrowedBooks.length} کتاب</span>
         </p>
+
         <p>
-          <span>🌟</span>
-          <span>{avgUserRating.toFixed(2)}</span>
+          {/* <span>⭐</span>
+
+          <span>{avgBorrowDays.toFixed(1)} روز</span> */}
         </p>
       </div>
     </div>
   );
 }
 
-function WatchedMoviesList({ watched, onDeleteWatched }) {
+/* =========================
+   Borrowed List
+========================= */
+
+function BorrowedBooksList({ borrowedBooks, onDeleteBorrowed }) {
   return (
     <ul className="list">
-      {watched.map((movie) => (
-        <WatchedMovie
-          movie={movie}
-          key={movie.id}
-          onDeleteWatched={onDeleteWatched}
+      {borrowedBooks.map((book) => (
+        <BorrowedBook
+          key={book.id}
+          book={book}
+          onDeleteBorrowed={onDeleteBorrowed}
         />
       ))}
     </ul>
   );
 }
 
-function WatchedMovie({ movie, onDeleteWatched }) {
+/* =========================
+   Borrowed Item
+========================= */
+
+function BorrowedBook({ book, onDeleteBorrowed }) {
   return (
     <li>
-      <img src={movie.picture} alt={`${movie.title} poster`} />
-      <h3>{movie.title}</h3>
-      <div>
+      <img src={book.picture} alt={`${book.title} cover`} />
+
+      <h3>{book.title}</h3>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "5px",
+        }}
+      >
+        {/* تعداد روز امانت */}
+
         <p>
-          <span>🌟</span>
-          <span>{movie.userRating}</span>
+          <span>⭐</span>
+
+          <span>{book.userRating} روز</span>
         </p>
+
+        {/* تاریخ بازگشت */}
+
+        <p>
+          <span>📅</span>
+
+          <span>
+            {book.returnDate ? formatPersianDate(book.returnDate) : "نامشخص"}
+          </span>
+        </p>
+
+        {/* حذف */}
+
         <button
           className="btn-delete"
-          onClick={() => onDeleteWatched(movie.id)}
+          onClick={() => onDeleteBorrowed(book.id)}
         >
           X
         </button>

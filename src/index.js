@@ -3,11 +3,15 @@ import ReactDOM from "react-dom/client";
 // import SatarRating from "./StarRating";
 import "./index.css";
 import App from "./App";
+import LoginPage from "./Login";
+import AdminDashboard from "./AdminDashboard";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
+    <LoginPage />
+    <AdminDashboard />
     {/* <SatarRating maxRating={10} /> */}
   </React.StrictMode>,
 );
