@@ -5,14 +5,16 @@ import "./index.css";
 import App from "./App";
 import LoginPage from "./Login";
 import AdminDashboard from "./AdminDashboard";
+import Root from "./Roots";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    {/* <App />
     <LoginPage />
     <AdminDashboard />
-    {/* <SatarRating maxRating={10} /> */}
+    <SatarRating maxRating={10} /> */}
+    <Root />
   </React.StrictMode>,
 );
 

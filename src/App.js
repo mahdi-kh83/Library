@@ -33,7 +33,7 @@ function formatPersianDate(dateString) {
    App
 ========================= */
 
-export default function App() {
+export default function App({ currentUser, onLogout }) {
   const [selectedBookId, setSelectedBookId] = useState(null);
 
   const [query, setQuery] = useState("");
@@ -76,7 +76,14 @@ export default function App() {
       <NavBar>
         <Search query={query} setQuery={setQuery} />
 
-        <NumResults books={books} />
+        <div className="nav-actions">
+          {/* <NumResults books={books} /> */}
+          <span className="current-user"> {currentUser.name} 👤</span>
+
+          <button className="logout-btn" onClick={onLogout}>
+            خروج
+          </button>
+        </div>
       </NavBar>
 
       <Main>

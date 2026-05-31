@@ -185,6 +185,7 @@ body {
   /* width: 100%; */
   width: 140%;
   grid-row: 1 / -1;
+  border-radius: 0.5rem;
 }
 
 .list h3 {
@@ -1141,4 +1142,104 @@ EMPTY STAR
   .dashboard-table {
     min-width: 70rem;
   }
+}
+
+.add-book-form select {
+  width: 100%;
+  padding: 1.2rem 4rem 1.2rem 1.4rem;
+  border: 1px solid var(--color-background-100);
+  border-radius: 0.8rem;
+  background-color: var(--color-background-900);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: all 0.3s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='white' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 7.5L10 12l4.5-4.5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+}
+
+.add-book-form select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(103, 65, 217, 0.2);
+}
+
+.add-book-form select option {
+  background-color: var(--color-background-900);
+  color: var(--color-text);
+}
+
+/* logout */
+.logout-btn {
+  background-color: var(--color-red);
+  color: white;
+  border: none;
+  padding: 1rem 1.6rem;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: var(--color-red-dark);
+}
+
+.nav-actions {
+  justify-self: end;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 1.5rem;
+}
+
+.logout-btn {
+  background-color: var(--color-red);
+
+  color: white;
+
+  border: none;
+
+  padding: 1rem 1.8rem;
+
+  border-radius: 0.8rem;
+
+  cursor: pointer;
+
+  font-size: 1.4rem;
+
+  font-weight: bold;
+
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: var(--color-red-dark);
+
+  transform: translateY(-2px);
+}
+
+.current-user {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: capitalize;
+}
+
+.login-error {
+  background: rgba(250, 82, 82, 0.15);
+  border: 1px solid #fa5252;
+  color: #fa5252;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  margin-bottom: 1.6rem;
+  text-align: center;
+  font-size: 1.4rem;
 }

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
 const API_URL = "http://localhost:9000/books";
+const USERS_API = "http://localhost:9000/users";
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ currentUser, onLogout }) {
   const [books, setBooks] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -19,13 +20,23 @@ export default function AdminDashboard() {
     precis: "",
   });
 
+  const [users, setUsers] = useState([]);
+
+  const [activeSection, setActiveSection] = useState("books");
+
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
+
+  const [newUser, setNewUser] = useState({
+    id: "",
+    name: "",
+    email: "",
+    password: "",
+    role: "user",
+  });
+
   /* =========================
       Fetch Books
   ========================= */
-
-  useEffect(() => {
-    fetchBooks();
-  }, []);
 
   async function fetchBooks() {
     try {
@@ -46,6 +57,85 @@ export default function AdminDashboard() {
   /* =========================
       Add Book
   ========================= */
+  useEffect(() => {
+    fetchBooks();
+    fetchUsers();
+  }, []);
+
+  // user functions
+  async function fetchUsers() {
+    try {
+      const res = await fetch(USERS_API);
+      const data = await res.json();
+      setUsers(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleAddUser(e) {
+    e.preventDefault();
+
+    if (!newUser.id || !newUser.name || !newUser.email || !newUser.password) {
+      alert("لطفا همه فیلدها را کامل کنید");
+      return;
+    }
+
+    const isDuplicate = users.some(
+      (user) => String(user.id) === String(newUser.id),
+    );
+
+    if (isDuplicate) {
+      alert("این شناسه قبلا ثبت شده است");
+      return;
+    }
+
+    try {
+      const res = await fetch(USERS_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      const data = await res.json();
+
+      setUsers((users) => [...users, data]);
+
+      setNewUser({
+        id: "",
+        name: "",
+        email: "",
+        password: "",
+        role: "user",
+      });
+
+      setShowAddUserForm(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleDeleteUser(id) {
+    const confirmDelete = window.confirm("آیا از حذف کاربر مطمئن هستید؟");
+
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(`${USERS_API}/${id}`, {
+        method: "DELETE",
+      });
+
+      setUsers((users) => users.filter((user) => user.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const totalUsers = users.length;
+
+  const totalAdmins = users.filter((user) => user.role === "admin").length;
 
   async function handleAddBook(e) {
     e.preventDefault();
@@ -166,215 +256,371 @@ export default function AdminDashboard() {
       <aside className="dashboard-sidebar">
         <div className="dashboard-logo">
           <span>📚</span>
-
           <h2>پنل مدیریت</h2>
         </div>
 
         <nav className="dashboard-menu">
-          <button className="active">📖 مدیریت کتاب‌ها</button>
+          <button
+            className={activeSection === "books" ? "active" : ""}
+            onClick={() => setActiveSection("books")}
+          >
+            📖 مدیریت کتاب‌ها
+          </button>
+
+          <button
+            className={activeSection === "users" ? "active" : ""}
+            onClick={() => setActiveSection("users")}
+          >
+            👤 مدیریت کاربران
+          </button>
         </nav>
       </aside>
 
       {/* Main */}
 
       <main className="dashboard-main">
-        {/* Header */}
+        {/* ==========================
+            BOOKS SECTION
+      ========================== */}
 
-        <header className="dashboard-header">
-          <div>
-            <h1>مدیریت کتابخانه</h1>
+        {activeSection === "books" && (
+          <>
+            <header className="dashboard-header">
+              <button
+                className="add-book-btn"
+                onClick={() => setShowAddForm((show) => !show)}
+              >
+                افزودن کتاب
+              </button>
+              <div>
+                <h1>مدیریت کتابخانه</h1>
 
-            <p>مدیریت کامل کتاب‌های کتابخانه</p>
-          </div>
+                <p>مدیریت کامل کتاب‌های کتابخانه</p>
+              </div>
 
-          <button
-            className="add-book-btn"
-            onClick={() => setShowAddForm((show) => !show)}
-          >
-            افزودن کتاب
-          </button>
-        </header>
+              <button className="logout-btn" onClick={onLogout}>
+                خروج
+              </button>
+            </header>
 
-        {/* Stats */}
+            <section className="dashboard-stats">
+              <div className="stat-card">
+                <span>📚</span>
 
-        <section className="dashboard-stats">
-          <div className="stat-card">
-            <span>📚</span>
+                <div>
+                  <h3>{totalBooks}</h3>
 
-            <div>
-              <h3>{totalBooks}</h3>
+                  <p>کل کتاب‌ها</p>
+                </div>
+              </div>
 
-              <p>کل کتاب‌ها</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <span>✅</span>
 
-          <div className="stat-card">
-            <span>✅</span>
+                <div>
+                  <h3>{availableBooks}</h3>
 
-            <div>
-              <h3>{availableBooks}</h3>
+                  <p>کتاب موجود</p>
+                </div>
+              </div>
 
-              <p>کتاب موجود</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <span>📦</span>
 
-          <div className="stat-card">
-            <span>📦</span>
+                <div>
+                  <h3>{borrowedBooks}</h3>
 
-            <div>
-              <h3>{borrowedBooks}</h3>
+                  <p>امانت داده شده</p>
+                </div>
+              </div>
+            </section>
 
-              <p>امانت داده شده</p>
-            </div>
-          </div>
-        </section>
+            {showAddForm && (
+              <form className="add-book-form" onSubmit={handleAddBook}>
+                <input
+                  type="text"
+                  placeholder="شناسه کتاب"
+                  value={newBook.id}
+                  onChange={(e) =>
+                    setNewBook({
+                      ...newBook,
+                      id: e.target.value,
+                    })
+                  }
+                />
 
-        {/* Add Form */}
+                <input
+                  type="text"
+                  placeholder="نام کتاب"
+                  value={newBook.title}
+                  onChange={(e) =>
+                    setNewBook({
+                      ...newBook,
+                      title: e.target.value,
+                    })
+                  }
+                />
 
-        {showAddForm && (
-          <form className="add-book-form" onSubmit={handleAddBook}>
-            <input
-              type="text"
-              placeholder="آیدی کتاب"
-              value={newBook.id}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  id: e.target.value,
-                })
-              }
-            />
+                <input
+                  type="text"
+                  placeholder="نام نویسنده"
+                  value={newBook.author}
+                  onChange={(e) =>
+                    setNewBook({
+                      ...newBook,
+                      author: e.target.value,
+                    })
+                  }
+                />
 
-            <input
-              type="text"
-              placeholder="نام کتاب"
-              value={newBook.title}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  title: e.target.value,
-                })
-              }
-            />
+                <input
+                  type="text"
+                  placeholder="لینک تصویر"
+                  value={newBook.picture}
+                  onChange={(e) =>
+                    setNewBook({
+                      ...newBook,
+                      picture: e.target.value,
+                    })
+                  }
+                />
 
-            <input
-              type="text"
-              placeholder="نام نویسنده"
-              value={newBook.author}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  author: e.target.value,
-                })
-              }
-            />
+                <textarea
+                  placeholder="خلاصه کتاب"
+                  value={newBook.precis}
+                  onChange={(e) =>
+                    setNewBook({
+                      ...newBook,
+                      precis: e.target.value,
+                    })
+                  }
+                />
 
-            <input
-              type="text"
-              placeholder="لینک تصویر"
-              value={newBook.picture}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  picture: e.target.value,
-                })
-              }
-            />
+                <button type="submit">ذخیره کتاب</button>
+              </form>
+            )}
 
-            <textarea
-              placeholder="خلاصه کتاب"
-              value={newBook.precis}
-              onChange={(e) =>
-                setNewBook({
-                  ...newBook,
-                  precis: e.target.value,
-                })
-              }
-            />
+            <section className="dashboard-tools">
+              <input
+                type="text"
+                placeholder="جستجوی کتاب..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </section>
 
-            <button type="submit">ذخیره کتاب</button>
-          </form>
+            {loading && <p className="loading">Loading...</p>}
+
+            {!loading && (
+              <section className="dashboard-table-wrapper">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>تصویر</th>
+                      <th>شناسه</th>
+                      <th>نام کتاب</th>
+                      <th>نویسنده</th>
+                      <th>وضعیت</th>
+                      <th>عملیات</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {filteredBooks.map((book) => (
+                      <tr key={book.id}>
+                        <td>
+                          <img
+                            className="table-book-image"
+                            src={book.picture}
+                            alt={book.title}
+                          />
+                        </td>
+
+                        <td>{book.id}</td>
+
+                        <td>{book.title}</td>
+
+                        <td>{book.author}</td>
+
+                        <td>
+                          <span
+                            className={`status ${
+                              book.status === "available"
+                                ? "available"
+                                : "borrowed"
+                            }`}
+                          >
+                            {book.status === "available"
+                              ? "موجود"
+                              : "امانت داده شده"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="table-actions">
+                            <button>✏️</button>
+
+                            <button onClick={() => handleDeleteBook(book.id)}>
+                              🗑️
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+          </>
         )}
 
-        {/* Search */}
+        {/* ==========================
+            USERS SECTION
+      ========================== */}
 
-        <section className="dashboard-tools">
-          <input
-            type="text"
-            placeholder="جستجوی کتاب..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </section>
+        {activeSection === "users" && (
+          <>
+            <header className="dashboard-header">
+              <div>
+                <h1>مدیریت کاربران</h1>
 
-        {/* Loading */}
+                <p>مدیریت کاربران سیستم</p>
+              </div>
 
-        {loading && <p className="loading">Loading...</p>}
+              <button
+                className="add-book-btn"
+                onClick={() => setShowAddUserForm((show) => !show)}
+              >
+                افزودن کاربر
+              </button>
+            </header>
 
-        {/* Table */}
+            <section className="dashboard-stats">
+              <div className="stat-card">
+                <span>👥</span>
 
-        {!loading && (
-          <section className="dashboard-table-wrapper">
-            <table className="dashboard-table">
-              <thead>
-                <tr>
-                  <th>تصویر</th>
+                <div>
+                  <h3>{totalUsers}</h3>
 
-                  <th>شناسه</th>
+                  <p>کل کاربران</p>
+                </div>
+              </div>
 
-                  <th>نام کتاب</th>
+              <div className="stat-card">
+                <span>🛡️</span>
 
-                  <th>نویسنده</th>
+                <div>
+                  <h3>{totalAdmins}</h3>
 
-                  <th>وضعیت</th>
+                  <p>مدیران</p>
+                </div>
+              </div>
+            </section>
 
-                  <th>عملیات</th>
-                </tr>
-              </thead>
+            {showAddUserForm && (
+              <form className="add-book-form" onSubmit={handleAddUser}>
+                <input
+                  type="text"
+                  placeholder="شناسه"
+                  value={newUser.id}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      id: e.target.value,
+                    })
+                  }
+                />
 
-              <tbody>
-                {filteredBooks.map((book) => (
-                  <tr key={book.id}>
-                    <td>
-                      <img
-                        className="table-book-image"
-                        src={book.picture}
-                        alt={book.title}
-                      />
-                    </td>
+                <input
+                  type="text"
+                  placeholder="نام"
+                  value={newUser.name}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      name: e.target.value,
+                    })
+                  }
+                />
 
-                    <td>{book.id}</td>
+                <input
+                  type="text"
+                  placeholder="ایمیل"
+                  value={newUser.email}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      email: e.target.value,
+                    })
+                  }
+                />
 
-                    <td>{book.title}</td>
+                <input
+                  type="password"
+                  placeholder="رمز عبور"
+                  value={newUser.password}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      password: e.target.value,
+                    })
+                  }
+                />
 
-                    <td>{book.author}</td>
+                <select
+                  value={newUser.role}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      role: e.target.value,
+                    })
+                  }
+                >
+                  <option value="user">کاربر</option>
 
-                    <td>
-                      <span
-                        className={`status ${
-                          book.status === "available" ? "available" : "borrowed"
-                        }`}
-                      >
-                        {book.status === "available"
-                          ? "موجود"
-                          : "امانت داده شده"}
-                      </span>
-                    </td>
+                  <option value="admin">مدیر</option>
+                </select>
 
-                    <td>
-                      <div className="table-actions">
-                        <button>✏️</button>
+                <button type="submit">ذخیره کاربر</button>
+              </form>
+            )}
 
-                        <button onClick={() => handleDeleteBook(book.id)}>
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
+            <section className="dashboard-table-wrapper">
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>شناسه</th>
+                    <th>نام</th>
+                    <th>ایمیل</th>
+                    <th>نقش</th>
+                    <th>عملیات</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td>{user.id}</td>
+
+                      <td>{user.name}</td>
+
+                      <td>{user.email}</td>
+
+                      <td>{user.role === "admin" ? "مدیر" : "کاربر"}</td>
+
+                      <td>
+                        <div className="table-actions">
+                          <button onClick={() => handleDeleteUser(user.id)}>
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          </>
         )}
       </main>
     </div>
