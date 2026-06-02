@@ -322,75 +322,76 @@
     }
   ],
   "users": [
-  {
-    "id": 101,
-    "role": "admin",
-    "name": "Mahdi",
-    "email": "admin",
-    "password": "admin"
-  },
-  {
-    "id": 102,
-    "role": "user",
-    "name": "mohammad",
-    "email": "user",
-    "password": "user"
-  },
-  {
-    "id": 103,
-    "role": "admin",
-    "name": "hossein",
-    "email": "hossein@mail.com",
-    "password": "hossein103"
-  },
-  {
-    "id": 104,
-    "role": "admin",
-    "name": "reza",
-    "email": "reza@mail.com",
-    "password": "reza104"
-  },
-  {
-    "id": 105,
-    "role": "admin",
-    "name": "mahdi",
-    "email": "mahdi@mail.com",
-    "password": "mahdi105"
-  },
-  {
-    "id": 106,
-    "role": "user",
-    "name": "saeed",
-    "email": "saeed@mail.com",
-    "password": "saeed106"
-  },
-  {
-    "id": 107,
-    "role": "user",
-    "name": "ahmad",
-    "email": "ahmad@mail.com",
-    "password": "ahmad107"
-  },
-  {
-    "id": 108,
-    "role": "user",
-    "name": "mahmoud",
-    "email": "mahmoud@mail.com",
-    "password": "mahmoud108"
-  },
-  {
-    "id": 109,
-    "role": "user",
-    "name": "hamid",
-    "email": "hamid@mail.com",
-    "password": "hamid109"
-  },
-  {
-    "id": 110,
-    "role": "user",
-    "name": "ghasem",
-    "email": "ghasem@mail.com",
-    "password": "ghasem110"
-  }],
+    {
+      "id": 101,
+      "role": "admin",
+      "name": "Mahdi",
+      "email": "admin",
+      "password": "admin"
+    },
+    {
+      "id": 102,
+      "role": "user",
+      "name": "mohammad",
+      "email": "user",
+      "password": "user"
+    },
+    {
+      "id": 103,
+      "role": "admin",
+      "name": "hossein",
+      "email": "hossein@mail.com",
+      "password": "hossein103"
+    },
+    {
+      "id": 104,
+      "role": "admin",
+      "name": "reza",
+      "email": "reza@mail.com",
+      "password": "reza104"
+    },
+    {
+      "id": 105,
+      "role": "admin",
+      "name": "mahdi",
+      "email": "mahdi@mail.com",
+      "password": "mahdi105"
+    },
+    {
+      "id": 106,
+      "role": "user",
+      "name": "saeed",
+      "email": "saeed@mail.com",
+      "password": "saeed106"
+    },
+    {
+      "id": 107,
+      "role": "user",
+      "name": "ahmad",
+      "email": "ahmad@mail.com",
+      "password": "ahmad107"
+    },
+    {
+      "id": 108,
+      "role": "user",
+      "name": "mahmoud",
+      "email": "mahmoud@mail.com",
+      "password": "mahmoud108"
+    },
+    {
+      "id": 109,
+      "role": "user",
+      "name": "hamid",
+      "email": "hamid@mail.com",
+      "password": "hamid109"
+    },
+    {
+      "id": 110,
+      "role": "user",
+      "name": "ghasem",
+      "email": "ghasem@mail.com",
+      "password": "ghasem110"
+    }
+  ],
   "$schema": "./node_modules/json-server/schema.json"
 }

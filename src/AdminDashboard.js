@@ -481,17 +481,19 @@ export default function AdminDashboard({ currentUser, onLogout }) {
         {activeSection === "users" && (
           <>
             <header className="dashboard-header">
-              <div>
-                <h1>مدیریت کاربران</h1>
-
-                <p>مدیریت کاربران سیستم</p>
-              </div>
-
               <button
                 className="add-book-btn"
                 onClick={() => setShowAddUserForm((show) => !show)}
               >
                 افزودن کاربر
+              </button>
+              <div>
+                <h1>مدیریت کاربران</h1>
+
+                <p>مدیریت کاربران سیستم</p>
+              </div>
+              <button className="logout-btn" onClick={onLogout}>
+                خروج
               </button>
             </header>
 
