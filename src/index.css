@@ -1243,3 +1243,30 @@ EMPTY STAR
   text-align: center;
   font-size: 1.4rem;
 }
+
+/* login page new style */
+.login-page {
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.15) 1px,
+    transparent 1px
+  );
+  background-size: 50px 50px;
+}
+
+.login-box {
+  position: relative;
+}
+
+.login-box::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+
+  background: linear-gradient(135deg, #6741d9, #7950f2, #9775fa);
+
+  filter: blur(30px);
+  opacity: 0.2;
+  border-radius: 1.2rem;
+}
