@@ -1290,3 +1290,153 @@ EMPTY STAR
 
   font-size: 1.4rem;
 }
+
+/* =========================
+   EDIT MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.65);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+
+  backdrop-filter: blur(6px);
+}
+
+.modal {
+  width: 55rem;
+  max-width: 90%;
+
+  background-color: var(--color-background-500);
+
+  border-radius: 1.4rem;
+
+  padding: 2.5rem;
+
+  box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.4);
+
+  animation: modalOpen 0.25s ease;
+}
+
+.modal h2 {
+  margin-bottom: 2rem;
+
+  font-size: 2.2rem;
+
+  color: white;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  width: 100%;
+
+  border: none;
+
+  padding: 1.3rem;
+
+  border-radius: 0.8rem;
+
+  background-color: var(--color-background-900);
+
+  color: white;
+
+  font-size: 1.4rem;
+}
+
+.modal textarea {
+  min-height: 12rem;
+  resize: vertical;
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+  outline: none;
+
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.modal-actions {
+  display: flex;
+
+  gap: 1rem;
+
+  margin-top: 1rem;
+}
+
+.modal-actions button {
+  flex: 1;
+
+  border: none;
+
+  padding: 1.3rem;
+
+  border-radius: 0.8rem;
+
+  cursor: pointer;
+
+  font-weight: bold;
+}
+
+.modal-actions button:first-child {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.modal-actions button:first-child:hover {
+  background-color: var(--color-primary-light);
+}
+
+.cancel-btn {
+  background-color: var(--color-red);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: var(--color-red-dark);
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.modal-form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.8rem;
+}
+
+.modal-form-group label {
+  font-size: 1.4rem;
+
+  font-weight: 600;
+
+  color: white;
+}
+
+.modal-form-textArea {
+  overflow: scroll;
+  scrollbar-width: none;
+}

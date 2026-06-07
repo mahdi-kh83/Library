@@ -34,6 +34,17 @@ export default function AdminDashboard({ currentUser, onLogout }) {
     role: "user",
   });
 
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [editBook, setEditBook] = useState({
+    id: "",
+    title: "",
+    author: "",
+    picture: "",
+    precis: "",
+    status: "available",
+  });
+
   /* =========================
       Fetch Books
   ========================= */
@@ -249,6 +260,47 @@ export default function AdminDashboard({ currentUser, onLogout }) {
     (book) => book.status === "borrowed",
   ).length;
 
+  function handleEditClick(book) {
+    setEditBook({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      picture: book.picture,
+      precis: book.precis,
+      status: book.status,
+    });
+
+    setShowEditModal(true);
+  }
+
+  async function handleUpdateBook(e) {
+    e.preventDefault();
+
+    try {
+      const res = await fetch(`${API_URL}/${editBook.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editBook),
+      });
+
+      if (!res.ok) {
+        throw new Error("خطا در ویرایش کتاب");
+      }
+
+      const updatedBook = await res.json();
+
+      setBooks((books) =>
+        books.map((book) => (book.id === updatedBook.id ? updatedBook : book)),
+      );
+
+      setShowEditModal(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <div className="dashboard">
       {/* Sidebar */}
@@ -458,7 +510,9 @@ export default function AdminDashboard({ currentUser, onLogout }) {
 
                         <td>
                           <div className="table-actions">
-                            <button>✏️</button>
+                            <button onClick={() => handleEditClick(book)}>
+                              ✏️
+                            </button>
 
                             <button onClick={() => handleDeleteBook(book.id)}>
                               🗑️
@@ -623,6 +677,107 @@ export default function AdminDashboard({ currentUser, onLogout }) {
               </table>
             </section>
           </>
+        )}
+        {showEditModal && (
+          <div
+            className="modal-overlay"
+            onClick={() => setShowEditModal(false)}
+          >
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h2>ویرایش کتاب</h2>
+
+              <form onSubmit={handleUpdateBook}>
+                <div className="modal-form-group">
+                  <label>نام کتاب</label>
+
+                  <input
+                    type="text"
+                    value={editBook.title}
+                    onChange={(e) =>
+                      setEditBook({
+                        ...editBook,
+                        title: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>نویسنده</label>
+
+                  <input
+                    type="text"
+                    value={editBook.author}
+                    onChange={(e) =>
+                      setEditBook({
+                        ...editBook,
+                        author: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>لینک تصویر</label>
+
+                  <input
+                    type="text"
+                    value={editBook.picture}
+                    onChange={(e) =>
+                      setEditBook({
+                        ...editBook,
+                        picture: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>خلاصه کتاب</label>
+
+                  <textarea
+                    className="modal-form-textArea"
+                    value={editBook.precis}
+                    onChange={(e) =>
+                      setEditBook({
+                        ...editBook,
+                        precis: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="modal-form-group">
+                  <label>وضعیت کتاب</label>
+
+                  <select
+                    value={editBook.status}
+                    onChange={(e) =>
+                      setEditBook({
+                        ...editBook,
+                        status: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="available">موجود</option>
+                    <option value="borrowed">امانت داده شده</option>
+                  </select>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="submit">ذخیره</button>
+
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    انصراف
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </main>
     </div>

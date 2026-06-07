@@ -47,8 +47,6 @@ export default function App({ currentUser, onLogout }) {
     "borrowedBooks",
   );
 
-  const [page, setPage] = useState("login");
-
   /* =========================
      Handlers
   ========================= */
