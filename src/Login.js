@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onRegisterClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -197,7 +197,11 @@ export default function LoginPage({ onLogin }) {
         <div className="login-footer">
           <p>حساب کاربری ندارید؟</p>
 
-          <button type="button" className="register-btn">
+          <button
+            type="button"
+            className="register-btn"
+            onClick={onRegisterClick}
+          >
             ثبت نام
           </button>
         </div>

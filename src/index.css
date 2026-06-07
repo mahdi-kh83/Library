@@ -1270,3 +1270,23 @@ EMPTY STAR
   opacity: 0.2;
   border-radius: 1.2rem;
 }
+
+/* sign up  */
+
+.success-message {
+  background: rgba(81, 207, 102, 0.15);
+
+  border: 1px solid #51cf66;
+
+  color: #51cf66;
+
+  padding: 1rem;
+
+  border-radius: 0.8rem;
+
+  margin-bottom: 1.6rem;
+
+  text-align: center;
+
+  font-size: 1.4rem;
+}
