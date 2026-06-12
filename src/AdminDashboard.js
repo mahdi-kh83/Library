@@ -699,6 +699,7 @@ export default function AdminDashboard({ currentUser, onLogout }) {
                         title: e.target.value,
                       })
                     }
+                    placeholder="نام کتاب"
                   />
                 </div>
 

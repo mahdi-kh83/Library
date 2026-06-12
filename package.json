@@ -17,8 +17,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
     "eject": "react-scripts eject",
     "server": "json-server --watch data/books.json --port 9000"
+  },
+  "devDependencies": {
+    "cypress": "^12.13.0"
   },
   "eslintConfig": {
     "extends": [
