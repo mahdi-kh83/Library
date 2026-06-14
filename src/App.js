@@ -17,11 +17,11 @@ const style = {
    Helpers
 ========================= */
 
-const average = (arr) =>
+export const average = (arr) =>
   arr.length === 0 ? 0 : arr.reduce((acc, cur) => acc + cur, 0) / arr.length;
 
 // تبدیل تاریخ میلادی به شمسی فارسی
-function formatPersianDate(dateString) {
+export function formatPersianDate(dateString) {
   return new Date(dateString).toLocaleDateString("fa-IR-u-ca-persian", {
     year: "numeric",
     month: "long",
